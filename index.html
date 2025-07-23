@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Roleta de Campeões - LoL</title>
+  <style>
+    body {
+      background-image: url('img/background.jpg'); /* Local background image */
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: white;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7); /* Dark theme overlay */
+      z-index: -1;
+    }
+    #championImage {
+      width: 300px;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 20px;
+      margin: 20px auto;
+      box-shadow: 0 0 20px #0ff;
+      transition: transform 0.2s ease;
+      position: relative;
+      z-index: 1;
+    }
+    #championName {
+      font-size: 26px;
+      margin: 10px;
+      font-weight: bold;
+      position: relative;
+      z-index: 1;
+    }
+    button {
+      padding: 12px 32px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background-color: #1e90ff;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+      position: relative;
+      z-index: 1;
+    }
+    button:hover {
+      background-color: #0077cc;
+    }
+    footer {
+      margin-top: 40px;
+      font-size: 14px;
+      color: #aaa;
+      position: relative;
+      z-index: 1;
+    }
+    footer a {
+      color: #1e90ff;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+    #volumeControl {
+      margin: 20px auto;
+      width: 200px;
+      position: relative;
+      z-index: 1;
+    }
+    #volumeControl label {
+      font-size: 16px;
+      margin-right: 10px;
+    }
+    #volumeSlider {
+      width: 150px;
+      vertical-align: middle;
+    }
+    .footer-icon {
+      width: 24px;
+      height: 24px;
+      vertical-align: middle;
+      margin-left: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Roleta de Campeões</h1>
+  <img id="championImage" src="img/AhriSquare.png" alt="Campeão" />
+  <div id="championName">Ahri</div>
+  <button onclick="sortearCampeao()">Sortear Campeão</button>
+
+  <div id="volumeControl">
+    <label for="volumeSlider">Volume:</label>
+    <input type="range" id="volumeSlider" min="0" max="100" value="50">
+  </div>
+
+  <div id="youtubePlayer"></div>
+
+  <footer>
+    <p>
+      Siga no Instagram: 
+      <a href="https://www.instagram.com/kitkatblac/" target="_blank" rel="noopener noreferrer">
+        @kitkatblac/
+      </a>
+      <img src="img/custom-icon.png" alt="Custom Icon" class="footer-icon">
+    </p>
+    <p>Feito com ❤️ por Lexfive</p>
+  </footer>
+
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+    const campeoes = [
+      { nome: "Aatrox", imagem: "img/AatroxSquare.png" },
+      { nome: "Ahri", imagem: "img/AhriSquare.png" },
+      { nome: "Akali", imagem: "img/AkaliSquare.png" },
+      { nome: "Akshan", imagem: "img/AkshanSquare.png" },
+      { nome: "Alistar", imagem: "img/AlistarSquare.png" },
+      { nome: "Amumu", imagem: "img/AmumuSquare.png" },
+      { nome: "Anivia", imagem: "img/AniviaSquare.png" },
+      { nome: "Annie", imagem: "img/AnnieSquare.png" },
+      { nome: "Aphelios", imagem: "img/ApheliosSquare.png" },
+      { nome: "Ashe", imagem: "img/AsheSquare.png" },
+      { nome: "Aurelion Sol", imagem: "img/AurelionSolSquare.png" },
+      { nome: "Azir", imagem: "img/AzirSquare.png" },
+      { nome: "Bard", imagem: "img/BardSquare.png" },
+      { nome: "Bel'Veth", imagem: "img/BelvethSquare.png" },
+      { nome: "Blitzcrank", imagem: "img/BlitzcrankSquare.png" },
+      { nome: "Brand", imagem: "img/BrandSquare.png" },
+      { nome: "Braum", imagem: "img/BraumSquare.png" },
+      { nome: "Briar", imagem: "img/BriarSquare.png" },
+      { nome: "Caitlyn", imagem: "img/CaitlynSquare.png" },
+      { nome: "Camille", imagem: "img/CamilleSquare.png" },
+      { nome: "Cassiopeia", imagem: "img/CassiopeiaSquare.png" },
+      { nome: "Cho'Gath", imagem: "img/ChogathSquare.png" },
+      { nome: "Corki", imagem: "img/CisrkySquare.png" },
+      { nome: "Darius", imagem: "img/DariusSquare.png" },
+      { nome: "Diana", imagem: "img/DianaSquare.png" },
+      { nome: "Dr. Mundo", imagem: "img/DrMundoSquare.png" },
+      { nome: "Draven", imagem: "img/DravenSquare.png" },
+      { nome: "Ekko", imagem: "img/EkkoSquare.png" },
+      { nome: "Elise", imagem: "img/EliseSquare.png" },
+      { nome: "Evelynn", imagem: "img/EvelynnSquare.png" },
+      { nome: "Ezreal", imagem: "img/EzrealSquare.png" },
+      { nome: "Fiddlesticks", imagem: "img/FiddlesticksSquare.png" },
+      { nome: "Fiora", imagem: "img/FioraSquare.png" },
+      { nome: "Fizz", imagem: "img/FizzSquare.png" },
+      { nome: "Galio", imagem: "img/GalioSquare.png" },
+      { nome: "Gangplank", imagem: "img/GangplankSquare.png" },
+      { nome: "Garen", imagem: "img/GarenSquare.png" },
+      { nome: "Gnar", imagem: "img/GnarSquare.png" },
+      { nome: "Gragas", imagem: "img/GragasSquare.png" },
+      { nome: "Graves", imagem: "img/GravesSquare.png" },
+      { nome: "Gwen", imagem: "img/GwenSquare.png" },
+      { nome: "Hecarim", imagem: "img/HecarimSquare.png" },
+      { nome: "Heimerdinger", imagem: "img/HeimerdingerSquare.png" },
+      { nome: "Illaoi", imagem: "img/IllaoiSquare.png" },
+      { nome: "Irelia", imagem: "img/IreliaSquare.png" },
+      { nome: "Ivern", imagem: "img/IvernSquare.png" },
+      { nome: "Janna", imagem: "img/JannaSquare.png" },
+      { nome: "Jarvan IV", imagem: "img/JarvanIVSquare.png" },
+      { nome: "Jax", imagem: "img/JaxSquare.png" },
+      { nome: "Jayce", imagem: "img/JayceSquare.png" },
+      { nome: "Jhin", imagem: "img/JhinSquare.png" },
+      { nome: "Jinx", imagem: "img/JinxSquare.png" },
+      { nome: "Yasuo", imagem: "img/YasuoSquare.png" },
+      { nome: "Zed", imagem: "img/ZedSquare.png" },
+      { nome: "Viego", imagem: "img/ViegoSquare.png" },
+      { nome: "Kayn", imagem: "img/KaynSquare.png" },
+      { nome: "Rell", imagem: "img/RellSquare.png" },
+      { nome: "Qiyana", imagem: "img/QiyanaSquare.png" },
+      { nome: "Senna", imagem: "img/SennaSquare.png" },
+      { nome: "Seraphine", imagem: "img/SeraphineSquare.png" },
+      { nome: "Sett", imagem: "img/SettSquare.png" },
+      { nome: "Sylas", imagem: "img/SylasSquare.png" },
+      { nome: "Taliyah", imagem: "img/TaliyahSquare.png" },
+      { nome: "Talon", imagem: "img/TalonSquare.png" },
+      { nome: "Yone", imagem: "img/YoneSquare.png" },
+      { nome: "Zoe", imagem: "img/ZoeSquare.png" },
+      { nome: "Ziggs", imagem: "img/ZiggsSquare.png" },
+      { nome: "Zac", imagem: "img/ZacSquare.png" },
+      { nome: "Zyra", imagem: "img/ZyraSquare.png" },
+      { nome: "Neeko", imagem: "img/NeekoSquare.png" },
+      { nome: "Lillia", imagem: "img/LilliaSquare.png" },
+      { nome: "Lucian", imagem: "img/LucianSquare.png" },
+      { nome: "Lux", imagem: "img/LuxSquare.png" },
+      { nome: "Malphite", imagem: "img/MalphiteSquare.png" },
+      { nome: "Malzahar", imagem: "img/MalzaharSquare.png" },
+      { nome: "Mordekaiser", imagem: "img/MordekaiserSquare.png" },
+      { nome: "Nami", imagem: "img/NamiSquare.png" },
+      { nome: "Nasus", imagem: "img/NasusSquare.png" },
+      { nome: "Nautilus", imagem: "img/NautilusSquare.png" },
+      { nome: "Nidalee", imagem: "img/NidaleeSquare.png" },
+      { nome: "Nocturne", imagem: "img/NocturneSquare.png" },
+      { nome: "Nunu & Willump", imagem: "img/NunuSquare.png" },
+      { nome: "Orianna", imagem: "img/OriannaSquare.png" },
+      { nome: "Pantheon", imagem: "img/PantheonSquare.png" },
+      { nome: "Poppy", imagem: "img/PoppySquare.png" },
+      { nome: "Rakan", imagem: "img/RakanSquare.png" },
+      { nome: "Rammus", imagem: "img/RammusSquare.png" },
+      { nome: "Rek’Sai", imagem: "img/RekSaiSquare.png" },
+      { nome: "Riven", imagem: "img/RivenSquare.png" },
+      { nome: "Rumble", imagem: "img/RumbleSquare.png" },
+      { nome: "Ryze", imagem: "img/RyzeSquare.png" },
+      { nome: "Samira", imagem: "img/SamiraSquare.png" },
+      { nome: "Sejuani", imagem: "img/SejuaniSquare.png" },
+      { nome: "Shaco", imagem: "img/ShacoSquare.png" },
+      { nome: "Shen", imagem: "img/ShenSquare.png" },
+      { nome: "Shyvana", imagem: "img/ShyvanaSquare.png" },
+      { nome: "Singed", imagem: "img/SingedSquare.png" },
+      { nome: "Sion", imagem: "img/SionSquare.png" },
+      { nome: "Sivir", imagem: "img/SivirSquare.png" },
+      { nome: "Skarner", imagem: "img/SkarnerSquare.png" },
+      { nome: "Sona", imagem: "img/SonaSquare.png" },
+      { nome: "Soraka", imagem: "img/SorakaSquare.png" },
+      { nome: "Swain", imagem: "img/SwainSquare.png" },
+      { nome: "Taric", imagem: "img/TaricSquare.png" },
+      { nome: "Teemo", imagem: "img/TeemoSquare.png" },
+      { nome: "Thresh", imagem: "img/ThreshSquare.png" },
+      { nome: "Tristana", imagem: "img/TristanaSquare.png" },
+      { nome: "Trundle", imagem: "img/TrundleSquare.png" },
+      { nome: "Tryndamere", imagem: "img/TryndamereSquare.png" },
+      { nome: "Twisted Fate", imagem: "img/TwistedFateSquare.png" },
+      { nome: "Twitch", imagem: "img/TwitchSquare.png" },
+      { nome: "Udyr", imagem: "img/UdyrSquare.png" },
+      { nome: "Urgot", imagem: "img/UrgotSquare.png" },
+      { nome: "Vayne", imagem: "img/VayneSquare.png" },
+      { nome: "Veigar", imagem: "img/VeigarSquare.png" },
+      { nome: "Vel’Koz", imagem: "img/VelkozSquare.png" },
+      { nome: "Vi", imagem: "img/ViSquare.png" },
+      { nome: "Viktor", imagem: "img/ViktorSquare.png" },
+      { nome: "Vladimir", imagem: "img/VladimirSquare.png" },
+      { nome: "Volibear", imagem: "img/VolibearSquare.png" },
+      { nome: "Warwick", imagem: "img/WarwickSquare.png" },
+      { nome: "Wukong", imagem: "img/WukongSquare.png" },
+      { nome: "Xayah", imagem: "img/XayahSquare.png" },
+      { nome: "Xerath", imagem: "img/XerathSquare.png" },
+      { nome: "Xin Zhao", imagem: "img/XinZhaoSquare.png" },
+      { nome: "Yuumi", imagem: "img/YuumiSquare.png" },
+      { nome: "Zilean", imagem: "img/ZileanSquare.png" }
+    ];
+
+    let player;
+
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('youtubePlayer', {
+        height: '0', // Hidden player for audio only
+        width: '0',
+        videoId: 'wOJAErCvVhs', // Replace with your YouTube video ID
+        playerVars: {
+          autoplay: 1,
+          loop: 1,
+          playlist: 'wOJAErCvVhs' // Same video ID for looping
+        },
+        events: {
+          'onReady': onPlayerReady
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      event.target.setVolume(50); // Initial volume
+      event.target.playVideo();
+    }
+
+    document.getElementById('volumeSlider').addEventListener('input', function() {
+      if (player) {
+        player.setVolume(this.value);
+      }
+    });
+
+    function sortearCampeao() {
+      const image = document.getElementById("championImage");
+      const name = document.getElementById("championName");
+
+      let count = 0;
+      const total = 30; // total de "giros"
+      const interval = setInterval(() => {
+        const random = campeoes[Math.floor(Math.random() * campeoes.length)];
+        image.src = random.imagem;
+        name.textContent = random.nome;
+
+        // Efeito visual giratório
+        image.style.transform = `rotate(${count * 20}deg)`;
+        count++;
+
+        if (count >= total) {
+          clearInterval(interval);
+          image.style.transform = `rotate(0deg)`;
+        }
+      }, 50); // velocidade de rotação
+    }
+  </script>
+</body>
+</html>

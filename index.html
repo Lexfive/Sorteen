@@ -5,7 +5,6 @@
   <title>Roleta de Campeões - LoL</title>
   <style>
     body {
-      background-image: url('img/background.jpg'); /* Local background image */
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -15,6 +14,7 @@
       padding: 20px;
       margin: 0;
       position: relative;
+      transition: background-image 1s ease-in-out; /* Suaviza a transição do slideshow */
     }
     body::before {
       content: '';
@@ -23,7 +23,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.7); /* Dark theme overlay */
+      background: rgba(0, 0, 0, 0.7); /* Overlay escuro */
       z-index: -1;
     }
     #championImage {
@@ -59,6 +59,10 @@
     button:hover {
       background-color: #0077cc;
     }
+    #playMusicButton {
+      display: none; /* Botão Tocar Música escondido */
+      margin: 10px auto;
+    }
     footer {
       margin-top: 40px;
       font-size: 14px;
@@ -88,23 +92,24 @@
       vertical-align: middle;
     }
     .footer-icon {
-      width: 24px;
-      height: 24px;
+      width: 32px; /* Tamanho ajustado do ícone personalizado */
+      height: 32px;
       vertical-align: middle;
       margin-left: 5px;
     }
   </style>
 </head>
 <body>
-  <h1>Roleta de Campeões</h1>
+  <h1>Roleta de Campeões - League of Legends</h1>
   <img id="championImage" src="img/AhriSquare.png" alt="Campeão" />
   <div id="championName">Ahri</div>
   <button onclick="sortearCampeao()">Sortear Campeão</button>
 
   <div id="volumeControl">
     <label for="volumeSlider">Volume:</label>
-    <input type="range" id="volumeSlider" min="0" max="100" value="50">
+    <input type="range" id="volumeSlider" min="0" max="100" value="0">
   </div>
+  <button id="playMusicButton" onclick="startMusic()">Tocar Música</button>
 
   <div id="youtubePlayer"></div>
 
@@ -144,7 +149,7 @@
       { nome: "Camille", imagem: "img/CamilleSquare.png" },
       { nome: "Cassiopeia", imagem: "img/CassiopeiaSquare.png" },
       { nome: "Cho'Gath", imagem: "img/ChogathSquare.png" },
-      { nome: "Corki", imagem: "img/CisrkySquare.png" },
+      { nome: "Corki", imagem: "img/CorkiSquare.png" },
       { nome: "Darius", imagem: "img/DariusSquare.png" },
       { nome: "Diana", imagem: "img/DianaSquare.png" },
       { nome: "Dr. Mundo", imagem: "img/DrMundoSquare.png" },
@@ -251,32 +256,64 @@
       { nome: "Zilean", imagem: "img/ZileanSquare.png" }
     ];
 
+    // Slideshow de fundo
+    const backgrounds = [
+      'img/background1.jpg',
+      'img/background2.jpg',
+      'img/background3.jpg'
+    ];
+    let currentBackgroundIndex = 0;
+
+    function changeBackground() {
+      document.body.style.backgroundImage = `url('${backgrounds[currentBackgroundIndex]}')`;
+      currentBackgroundIndex = (currentBackgroundIndex + 1) % backgrounds.length;
+    }
+
+    // Inicia com a primeira imagem
+    changeBackground();
+    // Muda a cada 5 segundos
+    setInterval(changeBackground, 5000);
+
     let player;
 
     function onYouTubeIframeAPIReady() {
       player = new YT.Player('youtubePlayer', {
-        height: '0', // Hidden player for audio only
+        height: '0',
         width: '0',
-        videoId: 'wOJAErCvVhs', // Replace with your YouTube video ID
+        videoId: 'wOJAErCvVhs', // Substitua pelo ID do vídeo
         playerVars: {
           autoplay: 1,
           loop: 1,
-          playlist: 'wOJAErCvVhs' // Same video ID for looping
+          playlist: 'wOJAErCvVhs',
+          mute: 1
         },
         events: {
-          'onReady': onPlayerReady
+          'onReady': onPlayerReady,
+          'onError': onPlayerError
         }
       });
     }
 
     function onPlayerReady(event) {
-      event.target.setVolume(20); // Initial volume
+      event.target.setVolume(0);
       event.target.playVideo();
+    }
+
+    function onPlayerError(event) {
+      console.error('Erro no player do YouTube:', event.data);
+      alert('Não foi possível carregar a música. Verifique o ID do vídeo ou tente outro.');
+    }
+
+    function startMusic() {
+      if (player) {
+        player.playVideo();
+      }
     }
 
     document.getElementById('volumeSlider').addEventListener('input', function() {
       if (player) {
         player.setVolume(this.value);
+        player.unMute();
       }
     });
 
@@ -285,13 +322,12 @@
       const name = document.getElementById("championName");
 
       let count = 0;
-      const total = 30; // total de "giros"
+      const total = 30;
       const interval = setInterval(() => {
         const random = campeoes[Math.floor(Math.random() * campeoes.length)];
         image.src = random.imagem;
         name.textContent = random.nome;
 
-        // Efeito visual giratório
         image.style.transform = `rotate(${count * 20}deg)`;
         count++;
 
@@ -299,7 +335,7 @@
           clearInterval(interval);
           image.style.transform = `rotate(0deg)`;
         }
-      }, 50); // velocidade de rotação
+      }, 50);
     }
   </script>
 </body>
